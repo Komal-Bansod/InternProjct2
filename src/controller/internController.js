@@ -37,20 +37,27 @@ const createIntern = async function (req, res) {
         if (!isValid(email))
             return res.status(400).send({ status: false, msg: "email is required" })
 
-
+        let alreadyExsitEmail = await internModel.findOne({ email: data.email })
+        if (alreadyExsitEmail) {
+            return res.status(400).send({ status: false, msg: "email already exit" })
+        }
 
         if (isValid(mobile))
 
             if (!(/^([+]\d{2})?\d{10}$/.test(data.mobile)))
-                return res.status(400).send({ status: false, msg: "lease Enter  a Valid Mobile Number" })
+                return res.status(400).send({ status: false, msg: "Please Enter  a Valid Mobile Number" })
         if (!isValid(mobile))
             return res.status(400).send({ status: false, msg: "mobile is required" })
+        const alreadyExsit = await internModel.findOne({ mobile: data.mobile })
+        if (alreadyExsit) {
+            return res.status(400).send({ status: false, msg: "mobile already exit" })
+        }
 
 
         if (!isValid(collegeId))
             return res.status(400).send({ status: false, msg: 'collegeId is required' })
 
-        let id = await collegeModel.findById(collegeId)
+        let id = await collegeModel.findOne({collegeId, isDeleted:false})
         console.log(id)
 
         if (!isValidObjectId(id)) {
@@ -70,9 +77,6 @@ const createIntern = async function (req, res) {
 const getCollege = async function (req, res) {
     try {
         let collegeName = req.query.collegeName
-
-
-
         if (!isValid(collegeName))
             return res.status(400).send({ status: false, msg: 'collegeName is required' })
         let Lowercase = collegeName.toLowerCase()
@@ -83,17 +87,18 @@ const getCollege = async function (req, res) {
 
         }
         //collegeName se name match krega
-        console.log({ filterCollege })
+        //console.log({ filterCollege })
 
-        const collegeGet = await internModel.find({ collegeId: filterCollege._id })
-        // console.log(collegeGet)
+        const collegeGet = await internModel.find({ collegeId: filterCollege._id })                               // this result ian array
+        console.log(collegeGet)
         const result = { name: filterCollege.name, fullName: filterCollege.fullName, logoLink: filterCollege.logoLink }
         if (collegeGet.length > 0) {
             result["Interests"] = collegeGet
+            console.log("it is result", result)
             return res.status(200).send({ data: result })
         }
         if (collegeGet.length == 0) {
-            result["Interests"] = "No Interns Avaiable"
+            result["Interests"] = "No Interns Avaiable"                                                           // gnerate keynintrest
             return res.status(401).send({ data: result })
         }
     }

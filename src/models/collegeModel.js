@@ -13,6 +13,7 @@ name: {
     fullName: {
         type:String,
         required:true,
+        unique:true
     },
         
  logoLink: {

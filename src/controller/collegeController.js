@@ -23,7 +23,7 @@ const createCollege = async function (req, res) {
     try {
         const data = req.body
         if (isValidRequestBody(data)) {
-            // if (Object.keys(data).length > 0) {
+           
             if (!isValid(data.name)) {
                 return res.status(400).send({ status: false, msg: "Name is Mandatory" })
             }
@@ -31,6 +31,11 @@ const createCollege = async function (req, res) {
                 return res.status(400).send({ status: false, msg: "Full name is Mandatory" })
             }
             if ((/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(data.logoLink))) {
+
+                let duplicateName = await collegeModel.findOne({name:data.name})
+                if(duplicateName){
+                    return res.status(400).send({status:false, msg:"duplicate name provide different name "})
+                }
 
                 const savedData = await collegeModel.create(data)
 
